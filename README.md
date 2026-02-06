@@ -89,9 +89,12 @@ Create a `.env` file in the `backend/` directory:
 ```
 SECRET_KEY=your-secret-key-here
 DATABASE_URL=mysql+mysqlconnector://root:your_password@localhost/gamified_elearning
+FLASK_DEBUG=True
 ```
 
 Replace `your_password` with your MySQL root password.
+
+**Security Note**: Set `FLASK_DEBUG=False` in production environments.
 
 ### Step 5: Run the Application
 ```bash

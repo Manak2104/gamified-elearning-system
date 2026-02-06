@@ -309,7 +309,8 @@
             document.getElementById(`${tabName}-section`).classList.add('active-section');
             
             document.querySelectorAll('.nav-menu button').forEach(btn => btn.classList.remove('active-tab'));
-            event.target.classList.add('active-tab');
+            const clickedButton = document.querySelector(`button[onclick*="switchTab('${tabName}')"]`);
+            if (clickedButton) clickedButton.classList.add('active-tab');
             
             if (tabName === 'modules') fetchModules();
             if (tabName === 'tasks') fetchTasks();

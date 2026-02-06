@@ -10,8 +10,7 @@ import secrets
 import random
 
 def craft_random_token(token_length=40):
-    character_pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    return ''.join(random.SystemRandom().choice(character_pool) for _ in range(token_length))
+    return secrets.token_urlsafe(token_length)
 
 def verify_session_active(handler_func):
     def wrapper_function(*positional_args, **keyword_args):
@@ -384,11 +383,16 @@ def retrieve_tasks(module_id):
 def establish_task(module_id):
     incoming_data = request.get_json()
     
+    try:
+        due_date_obj = datetime.fromisoformat(incoming_data['due_date']) if incoming_data.get('due_date') else None
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)'}), 400
+    
     task = TaskItem(
         course_id=module_id,
         title=incoming_data['title'],
         description=incoming_data.get('description'),
-        due_date=datetime.fromisoformat(incoming_data['due_date']) if incoming_data.get('due_date') else None,
+        due_date=due_date_obj,
         points=incoming_data.get('points', 0),
         created_by=session['user_id']
     )

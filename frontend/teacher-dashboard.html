@@ -144,7 +144,8 @@
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-view'));
             document.getElementById(`${viewName}-view`).classList.add('active-view');
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('selected'));
-            event.target.classList.add('selected');
+            const clickedButton = document.querySelector(`button[onclick*="navigateTo('${viewName}')"]`);
+            if (clickedButton) clickedButton.classList.add('selected');
             
             if (viewName === 'courses') loadCourses();
             if (viewName === 'materials') { loadCourses(); populateCourseSelects(); }

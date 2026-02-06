@@ -29,4 +29,6 @@ from routes import *
 if __name__ == '__main__':
     with web_application.app_context():
         storage_layer.create_all()
-    web_application.run(host='0.0.0.0', port=5000, debug=True)
+    
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    web_application.run(host='0.0.0.0', port=5000, debug=debug_mode)
