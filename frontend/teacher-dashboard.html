@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal - EduGamify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #ecf0f1; }
+        .portal-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: linear-gradient(180deg, #16a085, #27ae60); color: white; padding: 2rem 1rem; }
+        .brand-logo { font-size: 1.6rem; margin-bottom: 2.5rem; text-align: center; }
+        .menu-list { list-style: none; }
+        .menu-list li { margin-bottom: 1rem; }
+        .menu-btn { width: 100%; padding: 1rem; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 10px; cursor: pointer; text-align: left; font-size: 1rem; }
+        .menu-btn:hover { background: rgba(255,255,255,0.25); }
+        .menu-btn.selected { background: rgba(255,255,255,0.35); }
+        .main-content { flex: 1; padding: 2.5rem; }
+        .header-bar { background: white; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; box-shadow: 0 3px 10px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+        .teacher-info { display: flex; align-items: center; gap: 1rem; }
+        .avatar-circle { width: 55px; height: 55px; border-radius: 50%; background: #16a085; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3rem; }
+        .view-panel { display: none; }
+        .view-panel.active-view { display: block; }
+        .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .widget-card { background: white; padding: 1.8rem; border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .widget-title { font-size: 1.3rem; margin-bottom: 1.2rem; color: #2c3e50; }
+        .course-block { background: #f8f9fa; padding: 1.2rem; border-radius: 10px; margin-bottom: 1rem; border-left: 5px solid #16a085; cursor: pointer; }
+        .course-block:hover { transform: translateX(5px); transition: transform 0.2s; }
+        .primary-btn { padding: 0.8rem 1.6rem; background: linear-gradient(135deg, #16a085, #27ae60); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; margin-top: 1rem; }
+        .primary-btn:active { transform: scale(0.97); }
+        .input-field { width: 100%; padding: 0.9rem; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 1.2rem; font-size: 1rem; }
+        .input-field:focus { outline: none; border-color: #16a085; }
+        .textarea-field { width: 100%; padding: 0.9rem; border: 2px solid #e0e0e0; border-radius: 10px; min-height: 100px; font-size: 1rem; resize: vertical; }
+        .student-entry { display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #ecf0f1; }
+        .submission-row { background: #f8f9fa; padding: 1.2rem; border-radius: 10px; margin-bottom: 1rem; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2.5rem; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; z-index: 1001; }
+        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="portal-layout">
+        <aside class="sidebar">
+            <div class="brand-logo">📚 EduGamify</div>
+            <ul class="menu-list">
+                <li><button class="menu-btn selected" onclick="navigateTo('overview')">📊 Dashboard</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('courses')">📖 My Courses</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('materials')">📄 Materials</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('assignments')">✏️ Assignments</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('submissions')">📨 Submissions</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('students')">👥 Students</button></li>
+                <li><button class="menu-btn" onclick="navigateTo('leaderboard')">🏅 Leaderboard</button></li>
+                <li><button class="menu-btn" onclick="exitPortal()" style="background: rgba(231,76,60,0.4);">🚪 Logout</button></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <header class="header-bar">
+                <div class="teacher-info">
+                    <div class="avatar-circle" id="teacher-avatar">👨‍🏫</div>
+                    <div>
+                        <div id="teacher-name" style="font-weight: 700; font-size: 1.1rem;">Loading...</div>
+                        <div style="color: #7f8c8d; font-size: 0.95rem;">Teacher Account</div>
+                    </div>
+                </div>
+                <div style="color: #16a085; font-weight: 700; font-size: 1.1rem;">Teacher Portal</div>
+            </header>
+            
+            <div id="overview-view" class="view-panel active-view">
+                <h2>Teaching Dashboard</h2>
+                <div class="content-grid">
+                    <div class="widget-card">
+                        <div class="widget-title">My Statistics</div>
+                        <p>Active Courses: <strong id="course-count">0</strong></p>
+                        <p>Total Students: <strong id="student-count">0</strong></p>
+                        <p>Pending Reviews: <strong id="pending-count">0</strong></p>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-title">Quick Actions</div>
+                        <button class="primary-btn" onclick="navigateTo('courses')">Create New Course</button>
+                        <button class="primary-btn" onclick="navigateTo('materials')">Upload Material</button>
+                        <button class="primary-btn" onclick="navigateTo('assignments')">Create Assignment</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="courses-view" class="view-panel">
+                <h2>My Courses</h2>
+                <button class="primary-btn" onclick="showCourseForm()">➕ Create New Course</button>
+                <div id="courses-list" class="content-grid"></div>
+            </div>
+            
+            <div id="materials-view" class="view-panel">
+                <h2>Course Materials</h2>
+                <div class="widget-card">
+                    <div class="widget-title">Upload New Material</div>
+                    <select id="material-course" class="input-field"><option>Select Course...</option></select>
+                    <input type="text" id="material-title" class="input-field" placeholder="Material Title">
+                    <textarea id="material-content" class="textarea-field" placeholder="Content (optional)"></textarea>
+                    <input type="file" id="material-file" class="input-field">
+                    <button class="primary-btn" onclick="uploadMaterial()">Upload Material</button>
+                </div>
+            </div>
+            
+            <div id="assignments-view" class="view-panel">
+                <h2>Assignments</h2>
+                <div class="widget-card">
+                    <div class="widget-title">Create Assignment</div>
+                    <select id="assignment-course" class="input-field"><option>Select Course...</option></select>
+                    <input type="text" id="assignment-title" class="input-field" placeholder="Assignment Title">
+                    <textarea id="assignment-desc" class="textarea-field" placeholder="Description"></textarea>
+                    <input type="datetime-local" id="assignment-due" class="input-field">
+                    <input type="number" id="assignment-points" class="input-field" placeholder="Points">
+                    <button class="primary-btn" onclick="createAssignment()">Create Assignment</button>
+                </div>
+            </div>
+            
+            <div id="submissions-view" class="view-panel">
+                <h2>Student Submissions</h2>
+                <div id="submissions-list"></div>
+            </div>
+            
+            <div id="students-view" class="view-panel">
+                <h2>My Students</h2>
+                <select id="student-course" class="input-field" onchange="loadStudents()"><option>Select Course...</option></select>
+                <div id="students-list" class="widget-card"></div>
+            </div>
+            
+            <div id="leaderboard-view" class="view-panel">
+                <h2>Student Rankings</h2>
+                <div id="leaderboard-list" class="widget-card"></div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+    <div id="modal-content" class="modal-box" style="display:none;"></div>
+    
+    <script>
+        let currentTeacher = null;
+        let allCourses = [];
+        
+        const navigateTo = (viewName) => {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-view'));
+            document.getElementById(`${viewName}-view`).classList.add('active-view');
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            if (viewName === 'courses') loadCourses();
+            if (viewName === 'materials') { loadCourses(); populateCourseSelects(); }
+            if (viewName === 'assignments') { loadCourses(); populateCourseSelects(); }
+            if (viewName === 'submissions') loadSubmissions();
+            if (viewName === 'students') { loadCourses(); populateCourseSelects(); }
+            if (viewName === 'leaderboard') loadLeaderboard();
+        };
+        
+        const exitPortal = async () => {
+            await fetch('/api/auth/signout', { method: 'POST' });
+            window.location.href = 'login.html';
+        };
+        
+        const initializePortal = async () => {
+            try {
+                const resp = await fetch('/api/auth/whoami');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    currentTeacher = data.user;
+                    document.getElementById('teacher-name').textContent = data.user.username;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                window.location.href = 'login.html';
+            }
+        };
+        
+        const loadCourses = async () => {
+            const resp = await fetch('/api/modules/list');
+            const data = await resp.json();
+            allCourses = data.courses;
+            document.getElementById('course-count').textContent = data.courses.length;
+            
+            const container = document.getElementById('courses-list');
+            container.innerHTML = data.courses.map(c => `
+                <div class="widget-card">
+                    <h3>${c.course_name}</h3>
+                    <p>${c.description || 'No description'}</p>
+                    <button class="primary-btn" onclick="viewCourseStudents(${c.course_id})">View Students</button>
+                </div>
+            `).join('');
+        };
+        
+        const populateCourseSelects = () => {
+            const options = allCourses.map(c => `<option value="${c.course_id}">${c.course_name}</option>`).join('');
+            document.getElementById('material-course').innerHTML = '<option>Select Course...</option>' + options;
+            document.getElementById('assignment-course').innerHTML = '<option>Select Course...</option>' + options;
+            document.getElementById('student-course').innerHTML = '<option>Select Course...</option>' + options;
+        };
+        
+        const showCourseForm = () => {
+            const name = prompt('Enter course name:');
+            const desc = prompt('Enter description:');
+            if (!name) return;
+            
+            fetch('/api/modules/establish', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({course_name: name, description: desc})
+            }).then(() => loadCourses());
+        };
+        
+        const uploadMaterial = async () => {
+            const courseId = document.getElementById('material-course').value;
+            const title = document.getElementById('material-title').value;
+            const content = document.getElementById('material-content').value;
+            const file = document.getElementById('material-file').files[0];
+            
+            if (!courseId || !title) { alert('Fill required fields'); return; }
+            
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+            if (file) formData.append('file', file);
+            
+            await fetch(`/api/modules/${courseId}/resource-upload`, {
+                method: 'POST',
+                body: formData
+            });
+            alert('Material uploaded!');
+        };
+        
+        const createAssignment = async () => {
+            const courseId = document.getElementById('assignment-course').value;
+            const title = document.getElementById('assignment-title').value;
+            const description = document.getElementById('assignment-desc').value;
+            const dueDate = document.getElementById('assignment-due').value;
+            const points = document.getElementById('assignment-points').value;
+            
+            if (!courseId || !title) { alert('Fill required fields'); return; }
+            
+            await fetch(`/api/modules/${courseId}/task-create`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title, description, due_date: dueDate, points: parseInt(points) || 0})
+            });
+            alert('Assignment created!');
+        };
+        
+        const loadSubmissions = async () => {
+            const container = document.getElementById('submissions-list');
+            container.innerHTML = '';
+            
+            for (const course of allCourses) {
+                const tasksResp = await fetch(`/api/modules/${course.course_id}/tasks`);
+                const tasksData = await tasksResp.json();
+                
+                for (const task of tasksData.assignments) {
+                    const subsResp = await fetch(`/api/tasks/${task.assignment_id}/responses`);
+                    const subsData = await subsResp.json();
+                    
+                    subsData.submissions.forEach(sub => {
+                        const div = document.createElement('div');
+                        div.className = 'submission-row';
+                        div.innerHTML = `
+                            <h4>${task.title} - ${sub.student_name}</h4>
+                            <p>${sub.content || 'File submission'}</p>
+                            <button class="primary-btn" onclick="gradeSub(${sub.submission_id})">Grade</button>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            }
+        };
+        
+        const gradeSub = (subId) => {
+            const grade = prompt('Enter grade (points):');
+            const feedback = prompt('Enter feedback:');
+            if (!grade) return;
+            
+            fetch(`/api/responses/${subId}/evaluate`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({grade: parseInt(grade), feedback})
+            }).then(() => { alert('Graded!'); loadSubmissions(); });
+        };
+        
+        const loadStudents = async () => {
+            const courseId = document.getElementById('student-course').value;
+            if (!courseId) return;
+            
+            const resp = await fetch(`/api/modules/roster/${courseId}`);
+            const data = await resp.json();
+            const container = document.getElementById('students-list');
+            
+            container.innerHTML = data.students.map(s => `
+                <div class="student-entry">
+                    <span>${s.username}</span>
+                    <span>${s.points} points</span>
+                </div>
+            `).join('');
+        };
+        
+        const loadLeaderboard = async () => {
+            const resp = await fetch('/api/rankings/top-performers');
+            const data = await resp.json();
+            const container = document.getElementById('leaderboard-list');
+            
+            container.innerHTML = data.leaderboard.map(e => `
+                <div class="student-entry">
+                    <span>#${e.rank} ${e.username}</span>
+                    <span><strong>${e.points}</strong> pts</span>
+                </div>
+            `).join('');
+        };
+        
+        initializePortal();
+    </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Platform - EduGamify</title>
+    <style>
+        :root {
+            --accent-purple: #9b59b6;
+            --accent-pink: #e91e63;
+            --text-dark: #2c3e50;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .enrollment-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .branding-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .branding-header h1 {
+            font-size: 2.2rem;
+            color: var(--accent-purple);
+            margin-bottom: 0.3rem;
+        }
+        
+        .branding-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .input-row {
+            margin-bottom: 1.3rem;
+        }
+        
+        .input-row label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+        
+        .input-row input, .input-row select {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .input-row input:focus, .input-row select:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+        
+        .avatar-selector {
+            border: 3px dashed #ddd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            background: #fafafa;
+            transition: all 0.3s;
+        }
+        
+        .avatar-selector:hover {
+            border-color: var(--accent-purple);
+            background: #f5f0ff;
+        }
+        
+        .avatar-selector input {
+            display: none;
+        }
+        
+        .avatar-display {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0.5rem auto;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .enrollment-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .enrollment-button:active {
+            transform: scale(0.97);
+        }
+        
+        .redirect-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        .redirect-text a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 700;
+        }
+        
+        .notification-strip {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .notification-strip.active {
+            display: block;
+        }
+        
+        .notify-error {
+            background: #ffe5e5;
+            color: #c0392b;
+            border-left: 5px solid #c0392b;
+        }
+        
+        .notify-success {
+            background: #e8f8f5;
+            color: #27ae60;
+            border-left: 5px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="enrollment-card">
+        <div class="branding-header">
+            <h1>🚀 EduGamify</h1>
+            <p>Create Your Learning Profile</p>
+        </div>
+        
+        <div id="notification-strip" class="notification-strip"></div>
+        
+        <form id="enrollment-form">
+            <div class="input-row">
+                <label for="username-entry">Choose Username</label>
+                <input type="text" id="username-entry" name="username" required>
+            </div>
+            
+            <div class="input-row">
+                <label for="email-entry">Email Address</label>
+                <input type="email" id="email-entry" name="email" required>
+            </div>
+            
+            <div class="input-row">
+                <label for="password-entry">Secure Password</label>
+                <input type="password" id="password-entry" name="password" required minlength="6">
+            </div>
+            
+            <div class="input-row">
+                <label for="role-choice">Account Type</label>
+                <select id="role-choice" name="role" required>
+                    <option value="">Select Your Role</option>
+                    <option value="student">Student - I'm here to learn</option>
+                    <option value="teacher">Teacher - I'll educate others</option>
+                </select>
+            </div>
+            
+            <div class="input-row">
+                <label>Avatar Picture (Optional)</label>
+                <div class="avatar-selector" onclick="document.getElementById('avatar-file').click()">
+                    <div id="upload-hint">📸 Click to select your avatar</div>
+                    <img id="avatar-display" class="avatar-display">
+                </div>
+                <input type="file" id="avatar-file" accept="image/*">
+            </div>
+            
+            <button type="submit" class="enrollment-button">Join Now</button>
+        </form>
+        
+        <div class="redirect-text">
+            Already enrolled? <a href="login.html">Sign In Here</a>
+        </div>
+    </div>
+    
+    <script>
+        const enrollmentForm = document.querySelector('#enrollment-form');
+        const notificationStrip = document.querySelector('#notification-strip');
+        const avatarFile = document.querySelector('#avatar-file');
+        const avatarDisplay = document.querySelector('#avatar-display');
+        const uploadHint = document.querySelector('#upload-hint');
+        
+        avatarFile.addEventListener('change', (changeEvent) => {
+            const selectedImage = changeEvent.target.files[0];
+            if (selectedImage) {
+                const imageReader = new FileReader();
+                imageReader.onload = (loadEvent) => {
+                    avatarDisplay.src = loadEvent.target.result;
+                    avatarDisplay.style.display = 'block';
+                    uploadHint.textContent = '✓ Avatar selected';
+                };
+                imageReader.readAsDataURL(selectedImage);
+            }
+        });
+        
+        const broadcastNotification = (messageText, notifyClass) => {
+            notificationStrip.textContent = messageText;
+            notificationStrip.className = `notification-strip ${notifyClass} active`;
+            
+            window.setTimeout(() => {
+                notificationStrip.classList.remove('active');
+            }, 4500);
+        };
+        
+        enrollmentForm.addEventListener('submit', async (submitEvent) => {
+            submitEvent.preventDefault();
+            
+            const usernameVal = document.querySelector('#username-entry').value.trim();
+            const emailVal = document.querySelector('#email-entry').value.trim();
+            const passwordVal = document.querySelector('#password-entry').value;
+            const roleVal = document.querySelector('#role-choice').value;
+            
+            if (!roleVal) {
+                broadcastNotification('Please select your account type', 'notify-error');
+                return;
+            }
+            
+            const enrollmentPayload = {
+                username: usernameVal,
+                email: emailVal,
+                password: passwordVal,
+                role: roleVal
+            };
+            
+            try {
+                const enrollmentResponse = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(enrollmentPayload)
+                });
+                
+                const responseData = await enrollmentResponse.json();
+                
+                if (enrollmentResponse.ok) {
+                    if (avatarFile.files.length > 0) {
+                        const authResponse = await fetch('/api/auth/signin', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({username: usernameVal, password: passwordVal})
+                        });
+                        
+                        if (authResponse.ok) {
+                            const avatarData = new FormData();
+                            avatarData.append('picture', avatarFile.files[0]);
+                            
+                            await fetch('/api/profile/avatar-upload', {
+                                method: 'POST',
+                                body: avatarData
+                            });
+                        }
+                    }
+                    
+                    broadcastNotification('Account created successfully! Redirecting...', 'notify-success');
+                    
+                    window.setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1800);
+                } else {
+                    broadcastNotification(responseData.error || 'Enrollment failed', 'notify-error');
+                }
+            } catch (networkError) {
+                broadcastNotification('Network error occurred. Try again.', 'notify-error');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control - EduGamify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #2c3e50; }
+        .control-layout { display: flex; min-height: 100vh; }
+        .control-sidebar { width: 270px; background: linear-gradient(180deg, #c0392b, #8e44ad); color: white; padding: 2rem 1rem; }
+        .control-brand { font-size: 1.7rem; margin-bottom: 2.5rem; text-align: center; }
+        .control-menu { list-style: none; }
+        .control-menu li { margin-bottom: 1rem; }
+        .control-btn { width: 100%; padding: 1.1rem; background: rgba(255,255,255,0.12); color: white; border: none; border-radius: 12px; cursor: pointer; text-align: left; font-size: 1rem; }
+        .control-btn:hover { background: rgba(255,255,255,0.22); }
+        .control-btn.active-control { background: rgba(255,255,255,0.32); }
+        .control-main { flex: 1; padding: 2.5rem; }
+        .control-header { background: white; padding: 1.6rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
+        .admin-badge { background: linear-gradient(135deg, #c0392b, #8e44ad); color: white; padding: 0.6rem 1.4rem; border-radius: 25px; font-weight: 700; }
+        .panel-section { display: none; }
+        .panel-section.active-panel { display: block; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.8rem; margin-top: 1.8rem; }
+        .data-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card-header { font-size: 1.4rem; margin-bottom: 1.4rem; color: #2c3e50; font-weight: 700; }
+        .action-button { padding: 0.9rem 1.8rem; background: linear-gradient(135deg, #c0392b, #8e44ad); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-top: 1.2rem; }
+        .action-button:active { transform: scale(0.96); }
+        .form-control { width: 100%; padding: 1rem; border: 2px solid #dfe6e9; border-radius: 12px; margin-bottom: 1.3rem; font-size: 1rem; }
+        .form-control:focus { outline: none; border-color: #c0392b; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 1.1rem; border-bottom: 1px solid #ecf0f1; background: #f8f9fa; margin-bottom: 0.6rem; border-radius: 8px; }
+        .danger-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); padding: 0.6rem 1.2rem; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .info-tag { background: #3498db; color: white; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="control-layout">
+        <aside class="control-sidebar">
+            <div class="control-brand">⚙️ Admin Panel</div>
+            <ul class="control-menu">
+                <li><button class="control-btn active-control" onclick="switchPanel('overview')">📊 Overview</button></li>
+                <li><button class="control-btn" onclick="switchPanel('users')">👥 Users</button></li>
+                <li><button class="control-btn" onclick="switchPanel('courses')">📚 Courses</button></li>
+                <li><button class="control-btn" onclick="switchPanel('badges')">🏆 Badges</button></li>
+                <li><button class="control-btn" onclick="switchPanel('games')">🎮 Games</button></li>
+                <li><button class="control-btn" onclick="switchPanel('stats')">📈 Statistics</button></li>
+                <li><button class="control-btn" onclick="logoutAdmin()" style="background: rgba(231,76,60,0.5);">🚪 Exit</button></li>
+            </ul>
+        </aside>
+        
+        <main class="control-main">
+            <header class="control-header">
+                <div>
+                    <div style="font-weight: 800; font-size: 1.2rem;" id="admin-username">Administrator</div>
+                    <div style="color: #95a5a6; font-size: 0.95rem;">Full System Access</div>
+                </div>
+                <div class="admin-badge">🛡️ ADMIN</div>
+            </header>
+            
+            <div id="overview-panel" class="panel-section active-panel">
+                <h2>System Overview</h2>
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="card-header">Total Users</div>
+                        <p style="font-size: 2.5rem; font-weight: 800; color: #c0392b;" id="total-users">0</p>
+                    </div>
+                    <div class="data-card">
+                        <div class="card-header">Active Courses</div>
+                        <p style="font-size: 2.5rem; font-weight: 800; color: #8e44ad;" id="total-courses">0</p>
+                    </div>
+                    <div class="data-card">
+                        <div class="card-header">System Status</div>
+                        <p style="color: #27ae60; font-size: 1.3rem; font-weight: 700;">✓ All Systems Operational</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="users-panel" class="panel-section">
+                <h2>User Management</h2>
+                <div id="users-container"></div>
+            </div>
+            
+            <div id="courses-panel" class="panel-section">
+                <h2>Course Management</h2>
+                <div class="data-card">
+                    <div class="card-header">Create New Course</div>
+                    <input type="text" id="course-name-input" class="form-control" placeholder="Course Name">
+                    <textarea id="course-desc-input" class="form-control" placeholder="Description" style="min-height: 100px;"></textarea>
+                    <select id="course-teacher-input" class="form-control"><option>Select Teacher...</option></select>
+                    <button class="action-button" onclick="createNewCourse()">Create Course</button>
+                </div>
+                <div id="courses-list"></div>
+            </div>
+            
+            <div id="badges-panel" class="panel-section">
+                <h2>Badge System</h2>
+                <div class="data-card">
+                    <div class="card-header">Create New Badge</div>
+                    <input type="text" id="badge-name" class="form-control" placeholder="Badge Name">
+                    <textarea id="badge-desc" class="form-control" placeholder="Description"></textarea>
+                    <input type="text" id="badge-icon" class="form-control" placeholder="Icon (emoji or URL)">
+                    <input type="number" id="badge-points" class="form-control" placeholder="Points Required">
+                    <button class="action-button" onclick="createBadge()">Create Badge</button>
+                </div>
+                <div id="badges-list" class="data-grid"></div>
+            </div>
+            
+            <div id="games-panel" class="panel-section">
+                <h2>Educational Games</h2>
+                <div class="data-card">
+                    <div class="card-header">Add New Game</div>
+                    <input type="text" id="game-name" class="form-control" placeholder="Game Name">
+                    <textarea id="game-desc" class="form-control" placeholder="Description"></textarea>
+                    <input type="text" id="game-url" class="form-control" placeholder="Game URL">
+                    <input type="number" id="game-points" class="form-control" placeholder="Points Per Play">
+                    <button class="action-button" onclick="createGame()">Add Game</button>
+                </div>
+                <div id="games-list" class="data-grid"></div>
+            </div>
+            
+            <div id="stats-panel" class="panel-section">
+                <h2>Platform Statistics</h2>
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="card-header">User Distribution</div>
+                        <p>Admins: <strong id="admin-count">0</strong></p>
+                        <p>Teachers: <strong id="teacher-count">0</strong></p>
+                        <p>Students: <strong id="student-count">0</strong></p>
+                    </div>
+                    <div class="data-card">
+                        <div class="card-header">Activity Metrics</div>
+                        <p>Total Badges Awarded: <strong id="badges-awarded">0</strong></p>
+                        <p>Active Courses: <strong id="active-courses">0</strong></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let systemUsers = [];
+        
+        const switchPanel = (panelName) => {
+            document.querySelectorAll('.panel-section').forEach(p => p.classList.remove('active-panel'));
+            document.getElementById(`${panelName}-panel`).classList.add('active-panel');
+            document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active-control'));
+            event.target.classList.add('active-control');
+            
+            if (panelName === 'users') loadAllUsers();
+            if (panelName === 'courses') { loadAllUsers(); loadAllCourses(); }
+            if (panelName === 'badges') loadBadges();
+            if (panelName === 'games') loadGames();
+            if (panelName === 'stats') loadStatistics();
+        };
+        
+        const logoutAdmin = async () => {
+            await fetch('/api/auth/signout', { method: 'POST' });
+            window.location.href = 'login.html';
+        };
+        
+        const initializeAdmin = async () => {
+            try {
+                const resp = await fetch('/api/auth/whoami');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    document.getElementById('admin-username').textContent = data.user.username;
+                    loadDashboardStats();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                window.location.href = 'login.html';
+            }
+        };
+        
+        const loadDashboardStats = async () => {
+            const usersResp = await fetch('/api/admin/person-list');
+            const usersData = await usersResp.json();
+            document.getElementById('total-users').textContent = usersData.users.length;
+            
+            const coursesResp = await fetch('/api/modules/list');
+            const coursesData = await coursesResp.json();
+            document.getElementById('total-courses').textContent = coursesData.courses.length;
+        };
+        
+        const loadAllUsers = async () => {
+            const resp = await fetch('/api/admin/person-list');
+            const data = await resp.json();
+            systemUsers = data.users;
+            const container = document.getElementById('users-container');
+            
+            container.innerHTML = data.users.map(u => `
+                <div class="user-row">
+                    <div>
+                        <strong>${u.username}</strong> (${u.email})
+                        <span class="info-tag">${u.role.toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <select onchange="changeUserRole(${u.user_id}, this.value)" style="padding:0.5rem;border-radius:6px;margin-right:0.5rem;">
+                            <option value="${u.role}" selected>${u.role}</option>
+                            <option value="admin">admin</option>
+                            <option value="teacher">teacher</option>
+                            <option value="student">student</option>
+                        </select>
+                        <button class="danger-btn" onclick="deleteUser(${u.user_id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            const teachers = data.users.filter(u => u.role === 'teacher');
+            const teacherSelect = document.getElementById('course-teacher-input');
+            if (teacherSelect) {
+                teacherSelect.innerHTML = '<option>Select Teacher...</option>' + 
+                    teachers.map(t => `<option value="${t.user_id}">${t.username}</option>`).join('');
+            }
+        };
+        
+        const changeUserRole = async (userId, newRole) => {
+            await fetch(`/api/admin/person-role-change/${userId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({role: newRole})
+            });
+            alert('Role updated!');
+            loadAllUsers();
+        };
+        
+        const deleteUser = async (userId) => {
+            if (!confirm('Delete this user?')) return;
+            await fetch(`/api/admin/person-remove/${userId}`, { method: 'DELETE' });
+            alert('User deleted!');
+            loadAllUsers();
+        };
+        
+        const loadAllCourses = async () => {
+            const resp = await fetch('/api/modules/list');
+            const data = await resp.json();
+            const container = document.getElementById('courses-list');
+            
+            container.innerHTML = '<h3 style="margin-top:2rem;">All Courses</h3>' + 
+                data.courses.map(c => `
+                    <div class="user-row">
+                        <div><strong>${c.course_name}</strong><br><small>${c.description || ''}</small></div>
+                    </div>
+                `).join('');
+        };
+        
+        const createNewCourse = async () => {
+            const name = document.getElementById('course-name-input').value;
+            const desc = document.getElementById('course-desc-input').value;
+            const teacherId = document.getElementById('course-teacher-input').value;
+            
+            if (!name || !teacherId) { alert('Fill all fields'); return; }
+            
+            await fetch('/api/modules/establish', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({course_name: name, description: desc, teacher_id: parseInt(teacherId)})
+            });
+            alert('Course created!');
+            loadAllCourses();
+        };
+        
+        const createBadge = async () => {
+            const name = document.getElementById('badge-name').value;
+            const desc = document.getElementById('badge-desc').value;
+            const icon = document.getElementById('badge-icon').value;
+            const points = document.getElementById('badge-points').value;
+            
+            if (!name) { alert('Enter badge name'); return; }
+            
+            await fetch('/api/admin/trophy-create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, description: desc, icon, points_required: parseInt(points) || 0})
+            });
+            alert('Badge created!');
+            loadBadges();
+        };
+        
+        const loadBadges = async () => {
+            const resp = await fetch('/api/trophies/catalog');
+            const data = await resp.json();
+            const container = document.getElementById('badges-list');
+            
+            container.innerHTML = data.badges.map(b => `
+                <div class="data-card">
+                    <h3>${b.icon || '🏆'} ${b.name}</h3>
+                    <p>${b.description || ''}</p>
+                    <p><strong>${b.points_required}</strong> points required</p>
+                </div>
+            `).join('');
+        };
+        
+        const createGame = async () => {
+            const name = document.getElementById('game-name').value;
+            const desc = document.getElementById('game-desc').value;
+            const url = document.getElementById('game-url').value;
+            const points = document.getElementById('game-points').value;
+            
+            if (!name) { alert('Enter game name'); return; }
+            
+            await fetch('/api/admin/activity-create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, description: desc, url, points_per_play: parseInt(points) || 10})
+            });
+            alert('Game added!');
+            loadGames();
+        };
+        
+        const loadGames = async () => {
+            const resp = await fetch('/api/activities/catalog');
+            const data = await resp.json();
+            const container = document.getElementById('games-list');
+            
+            container.innerHTML = data.games.map(g => `
+                <div class="data-card">
+                    <h3>🎮 ${g.name}</h3>
+                    <p>${g.description || ''}</p>
+                    <p><strong>${g.points_per_play}</strong> points per play</p>
+                    ${g.url ? `<p><a href="${g.url}" target="_blank">Play Game</a></p>` : ''}
+                </div>
+            `).join('');
+        };
+        
+        const loadStatistics = async () => {
+            const usersResp = await fetch('/api/admin/person-list');
+            const usersData = await usersResp.json();
+            
+            const admins = usersData.users.filter(u => u.role === 'admin').length;
+            const teachers = usersData.users.filter(u => u.role === 'teacher').length;
+            const students = usersData.users.filter(u => u.role === 'student').length;
+            
+            document.getElementById('admin-count').textContent = admins;
+            document.getElementById('teacher-count').textContent = teachers;
+            document.getElementById('student-count').textContent = students;
+            
+            const coursesResp = await fetch('/api/modules/list');
+            const coursesData = await coursesResp.json();
+            document.getElementById('active-courses').textContent = coursesData.courses.length;
+        };
+        
+        initializeAdmin();
+    </script>
+</body>
+</html>
