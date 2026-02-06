@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Hub - EduGamify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .main-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .side-navigation {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 1rem;
+        }
+        
+        .nav-brand {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .nav-menu button {
+            width: 100%;
+            padding: 0.9rem;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        
+        .nav-menu button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-menu button.active-tab {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .content-area {
+            padding: 2rem;
+        }
+        
+        .top-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .points-display {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active-section {
+            display: block;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .badge-item {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+        }
+        
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .rank-number {
+            font-weight: 700;
+            color: #f5576c;
+        }
+        
+        .module-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .action-btn {
+            padding: 0.7rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .game-tile {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .game-tile:hover {
+            transform: scale(1.05);
+        }
+        
+        .task-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .submission-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 1rem;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-layout">
+        <nav class="side-navigation">
+            <div class="nav-brand">🎮 EduGamify</div>
+            <ul class="nav-menu">
+                <li><button onclick="switchTab('overview')" class="active-tab">📊 Overview</button></li>
+                <li><button onclick="switchTab('modules')">📚 My Modules</button></li>
+                <li><button onclick="switchTab('tasks')">📝 Assignments</button></li>
+                <li><button onclick="switchTab('games')">🎯 Games</button></li>
+                <li><button onclick="switchTab('badges')">🏆 Badges</button></li>
+                <li><button onclick="switchTab('leaderboard')">👑 Leaderboard</button></li>
+                <li><button onclick="switchTab('profile')">⚙️ Profile</button></li>
+                <li><button onclick="performLogout()" style="background: rgba(231,76,60,0.3);">🚪 Logout</button></li>
+            </ul>
+        </nav>
+        
+        <main class="content-area">
+            <header class="top-header">
+                <div class="user-profile">
+                    <div class="profile-avatar" id="avatar-icon">👤</div>
+                    <div>
+                        <div id="username-display" style="font-weight: 600;">Loading...</div>
+                        <div style="color: #7f8c8d; font-size: 0.9rem;">Student</div>
+                    </div>
+                </div>
+                <div class="points-display">
+                    ⭐ <span id="points-counter">0</span> Points
+                </div>
+            </header>
+            
+            <div id="overview-section" class="content-section active-section">
+                <h2>Welcome Back!</h2>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-title">Quick Stats</div>
+                        <p>Enrolled Modules: <strong id="modules-count">0</strong></p>
+                        <p>Pending Tasks: <strong id="tasks-count">0</strong></p>
+                        <p>Badges Earned: <strong id="badges-count">0</strong></p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-title">Latest Achievement</div>
+                        <div id="latest-achievement">No achievements yet</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="modules-section" class="content-section">
+                <h2>My Learning Modules</h2>
+                <div id="modules-container"></div>
+            </div>
+            
+            <div id="tasks-section" class="content-section">
+                <h2>My Assignments</h2>
+                <div id="tasks-container"></div>
+            </div>
+            
+            <div id="games-section" class="content-section">
+                <h2>Educational Games</h2>
+                <div id="games-container" class="cards-grid"></div>
+            </div>
+            
+            <div id="badges-section" class="content-section">
+                <h2>My Badges & Achievements</h2>
+                <div id="badges-container"></div>
+            </div>
+            
+            <div id="leaderboard-section" class="content-section">
+                <h2>Top Performers</h2>
+                <div class="info-card">
+                    <div id="leaderboard-container"></div>
+                </div>
+            </div>
+            
+            <div id="profile-section" class="content-section">
+                <h2>Profile Settings</h2>
+                <div class="submission-form">
+                    <label>Update Avatar</label>
+                    <input type="file" id="avatar-upload" accept="image/*" class="form-input">
+                    <button onclick="uploadAvatar()" class="action-btn">Save Avatar</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let currentUserData = null;
+        
+        const switchTab = (tabName) => {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
+            document.getElementById(`${tabName}-section`).classList.add('active-section');
+            
+            document.querySelectorAll('.nav-menu button').forEach(btn => btn.classList.remove('active-tab'));
+            const clickedButton = document.querySelector(`button[onclick*="switchTab('${tabName}')"]`);
+            if (clickedButton) clickedButton.classList.add('active-tab');
+            
+            if (tabName === 'modules') fetchModules();
+            if (tabName === 'tasks') fetchTasks();
+            if (tabName === 'games') fetchGames();
+            if (tabName === 'badges') fetchBadges();
+            if (tabName === 'leaderboard') fetchLeaderboard();
+        };
+        
+        const performLogout = async () => {
+            await fetch('/api/auth/signout', { method: 'POST' });
+            window.location.href = 'login.html';
+        };
+        
+        const loadUserInfo = async () => {
+            try {
+                const resp = await fetch('/api/auth/whoami');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    currentUserData = data.user;
+                    document.getElementById('username-display').textContent = data.user.username;
+                    document.getElementById('points-counter').textContent = data.user.points;
+                    
+                    if (data.user.profile_picture) {
+                        document.getElementById('avatar-icon').innerHTML = `<img src="${data.user.profile_picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                window.location.href = 'login.html';
+            }
+        };
+        
+        const fetchModules = async () => {
+            const resp = await fetch('/api/modules/list');
+            const data = await resp.json();
+            const container = document.getElementById('modules-container');
+            
+            if (data.courses.length === 0) {
+                container.innerHTML = '<p>No modules enrolled yet</p>';
+                return;
+            }
+            
+            container.innerHTML = data.courses.map(mod => `
+                <div class="module-card" onclick="viewModule(${mod.course_id})">
+                    <h3>${mod.course_name}</h3>
+                    <p>${mod.description || 'No description'}</p>
+                </div>
+            `).join('');
+            
+            document.getElementById('modules-count').textContent = data.courses.length;
+        };
+        
+        const viewModule = async (moduleId) => {
+            const materialsResp = await fetch(`/api/modules/${moduleId}/resources`);
+            const materialsData = await materialsResp.json();
+            
+            const tasksResp = await fetch(`/api/modules/${moduleId}/tasks`);
+            const tasksData = await tasksResp.json();
+            
+            alert(`Module has ${materialsData.materials.length} materials and ${tasksData.assignments.length} assignments`);
+        };
+        
+        const fetchTasks = async () => {
+            const modulesResp = await fetch('/api/modules/list');
+            const modulesData = await modulesResp.json();
+            
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+            
+            for (const mod of modulesData.courses) {
+                const tasksResp = await fetch(`/api/modules/${mod.course_id}/tasks`);
+                const tasksData = await tasksResp.json();
+                
+                tasksData.assignments.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task-item';
+                    taskDiv.innerHTML = `
+                        <h3>${task.title}</h3>
+                        <p>${task.description || ''}</p>
+                        <p>Due: ${task.due_date || 'No deadline'}</p>
+                        <button class="action-btn" onclick="submitTask(${task.assignment_id})">Submit</button>
+                    `;
+                    container.appendChild(taskDiv);
+                });
+            }
+            
+            document.getElementById('tasks-count').textContent = container.children.length;
+        };
+        
+        const submitTask = (taskId) => {
+            const submissionContent = prompt('Enter your submission:');
+            if (!submissionContent) return;
+            
+            const formData = new FormData();
+            formData.append('content', submissionContent);
+            
+            fetch(`/api/tasks/${taskId}/deliver`, {
+                method: 'POST',
+                body: formData
+            }).then(resp => resp.json()).then(data => {
+                alert(data.message);
+                fetchTasks();
+            });
+        };
+        
+        const fetchGames = async () => {
+            const resp = await fetch('/api/activities/catalog');
+            const data = await resp.json();
+            const container = document.getElementById('games-container');
+            
+            container.innerHTML = data.games.map(game => `
+                <div class="game-tile" onclick="playGame(${game.game_id})">
+                    <h3>🎮 ${game.name}</h3>
+                    <p>${game.description || ''}</p>
+                    <p>Earn ${game.points_per_play} points!</p>
+                </div>
+            `).join('');
+        };
+        
+        const playGame = async (gameId) => {
+            const score = Math.floor(Math.random() * 100);
+            await fetch(`/api/activities/${gameId}/participate`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({score})
+            });
+            alert(`Game completed! Score: ${score}`);
+            loadUserInfo();
+        };
+        
+        const fetchBadges = async () => {
+            const resp = await fetch('/api/trophies/mine');
+            const data = await resp.json();
+            const container = document.getElementById('badges-container');
+            
+            if (data.badges.length === 0) {
+                container.innerHTML = '<p>No badges earned yet. Keep learning!</p>';
+                return;
+            }
+            
+            container.innerHTML = data.badges.map(badge => `
+                <div class="badge-item">
+                    <h3>🏆 ${badge.name}</h3>
+                    <p>${badge.description || ''}</p>
+                    <small>Earned: ${new Date(badge.earned_at).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+            
+            document.getElementById('badges-count').textContent = data.badges.length;
+        };
+        
+        const fetchLeaderboard = async () => {
+            const resp = await fetch('/api/rankings/top-performers');
+            const data = await resp.json();
+            const container = document.getElementById('leaderboard-container');
+            
+            container.innerHTML = data.leaderboard.map(entry => `
+                <div class="leaderboard-entry">
+                    <span><span class="rank-number">#${entry.rank}</span> ${entry.username}</span>
+                    <span><strong>${entry.points}</strong> pts</span>
+                </div>
+            `).join('');
+        };
+        
+        const uploadAvatar = async () => {
+            const fileInput = document.getElementById('avatar-upload');
+            if (!fileInput.files[0]) return;
+            
+            const formData = new FormData();
+            formData.append('picture', fileInput.files[0]);
+            
+            const resp = await fetch('/api/profile/avatar-upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (resp.ok) {
+                alert('Avatar updated!');
+                loadUserInfo();
+            }
+        };
+        
+        loadUserInfo();
+    </script>
+</body>
+</html>

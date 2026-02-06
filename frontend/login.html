@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Portal - EduGamify</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(145deg, #4a90e2, #7b68ee);
+            --danger-tone: #e74c3c;
+            --success-tone: #2ecc71;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .access-wrapper {
+            height: 100vh;
+            background: var(--primary-gradient);
+            display: grid;
+            place-items: center;
+        }
+        
+        .credential-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            min-width: 380px;
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-area h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-area span {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .entry-field {
+            margin-bottom: 1.5rem;
+        }
+        
+        .entry-field label {
+            display: block;
+            color: #34495e;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .entry-field input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .entry-field input:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        
+        .access-button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        
+        .access-button:active {
+            transform: scale(0.98);
+        }
+        
+        .auxiliary-links {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        .auxiliary-links a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        
+        .feedback-banner {
+            padding: 0.9rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feedback-banner.visible {
+            opacity: 1;
+        }
+        
+        .feedback-danger {
+            background: #fadbd8;
+            color: var(--danger-tone);
+            border-left: 4px solid var(--danger-tone);
+        }
+        
+        .feedback-success {
+            background: #d4edda;
+            color: var(--success-tone);
+            border-left: 4px solid var(--success-tone);
+        }
+    </style>
+</head>
+<body>
+    <div class="access-wrapper">
+        <div class="credential-panel">
+            <div class="logo-area">
+                <h2>🎮 EduGamify</h2>
+                <span>Access Your Learning Hub</span>
+            </div>
+            
+            <div id="feedback-zone" class="feedback-banner"></div>
+            
+            <form id="access-form" autocomplete="on">
+                <div class="entry-field">
+                    <label for="identity-input">Your Username</label>
+                    <input type="text" id="identity-input" name="username" required>
+                </div>
+                
+                <div class="entry-field">
+                    <label for="secret-input">Your Password</label>
+                    <input type="password" id="secret-input" name="password" required>
+                </div>
+                
+                <button type="submit" class="access-button">Enter Platform</button>
+            </form>
+            
+            <div class="auxiliary-links">
+                <a href="forgot-password.html">Lost Password?</a>
+                <a href="register.html">New Account</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const accessFormElement = document.querySelector('#access-form');
+        const feedbackZone = document.querySelector('#feedback-zone');
+        
+        const broadcastFeedback = (contentText, feedbackClass) => {
+            feedbackZone.textContent = contentText;
+            feedbackZone.className = `feedback-banner ${feedbackClass} visible`;
+            
+            window.setTimeout(() => {
+                feedbackZone.classList.remove('visible');
+            }, 3500);
+        };
+        
+        accessFormElement.addEventListener('submit', async (submitEvent) => {
+            submitEvent.preventDefault();
+            
+            const identityValue = document.querySelector('#identity-input').value.trim();
+            const secretValue = document.querySelector('#secret-input').value;
+            
+            const credentialPackage = {
+                username: identityValue,
+                password: secretValue
+            };
+            
+            try {
+                const serverReply = await fetch('/api/auth/signin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(credentialPackage)
+                });
+                
+                const replyPayload = await serverReply.json();
+                
+                if (serverReply.status === 200) {
+                    broadcastFeedback('Access granted! Loading dashboard...', 'feedback-success');
+                    
+                    const accountRole = replyPayload.user.role;
+                    const dashboardMap = {
+                        'admin': 'admin-dashboard.html',
+                        'teacher': 'teacher-dashboard.html',
+                        'student': 'student-dashboard.html'
+                    };
+                    
+                    window.setTimeout(() => {
+                        window.location.href = dashboardMap[accountRole] || 'student-dashboard.html';
+                    }, 800);
+                } else {
+                    broadcastFeedback(replyPayload.error || 'Access denied', 'feedback-danger');
+                }
+            } catch (networkError) {
+                broadcastFeedback('Network issue detected. Retry shortly.', 'feedback-danger');
+            }
+        });
+    </script>
+</body>
+</html>
