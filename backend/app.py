@@ -7,7 +7,9 @@ from datetime import timedelta
 web_application = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(web_application)
 
-web_application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'xkj923jklsdf89324jklsdf')
+web_application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+if not web_application.config['SECRET_KEY']:
+    raise ValueError("SECRET_KEY environment variable must be set for production use")
 web_application.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL', 
     'sqlite:///../gamified_elearning.db'

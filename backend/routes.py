@@ -146,9 +146,11 @@ def begin_credential_reset():
     storage_layer.session.add(reset_ticket)
     storage_layer.session.commit()
     
+    # NOTE: In production, send reset_token via email instead of returning it
+    # For development/testing purposes, we return it in the response
     return jsonify({
         'message': 'Reset initiated',
-        'reset_token': reset_token
+        'reset_token': reset_token  # TODO: Send via email in production
     }), 200
 
 @web_application.route('/api/auth/finalize-reset', methods=['POST'])
