@@ -18,7 +18,8 @@ class PersonEntity(storage_layer.Model):
     
     class_memberships = storage_layer.relationship('ClassMembership', back_populates='enrolled_person', lazy=True)
     teaching_classes = storage_layer.relationship('LearningModule', back_populates='lead_educator', lazy=True)
-    work_submissions = storage_layer.relationship('WorkSubmission', back_populates='submitting_person', lazy=True)
+    work_submissions = storage_layer.relationship('WorkSubmission', foreign_keys='WorkSubmission.student_id', back_populates='submitting_person', lazy=True)
+    graded_works = storage_layer.relationship('WorkSubmission', foreign_keys='WorkSubmission.graded_by', lazy=True)
     trophy_collection = storage_layer.relationship('TrophyOwnership', back_populates='trophy_holder', lazy=True)
     milestones = storage_layer.relationship('MilestoneRecord', back_populates='milestone_owner', lazy=True)
     play_history = storage_layer.relationship('PlaySession', back_populates='participant', lazy=True)

@@ -10,7 +10,7 @@ CORS(web_application)
 web_application.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'xkj923jklsdf89324jklsdf')
 web_application.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL', 
-    'mysql+mysqlconnector://root:password@localhost/gamified_elearning'
+    'sqlite:///../gamified_elearning.db'
 )
 web_application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 web_application.config['FILE_STORAGE_PATH'] = os.path.join(os.path.dirname(__file__), '../uploads')
